@@ -68,6 +68,7 @@
       }
 
       function summary() {
+        if (ctx.mix) { newRound(); ctx.roundDone(); return; }
         let h = '<div class="pp-feedback' + (st.missed.length ? " pp-bad" : "") + '" role="status"><b>' +
           st.right + " of " + st.round.length + " correct.</b>" +
           (st.missed.length ? "<p>Worth another look:</p>" : "<p>Clean round.</p>") + "</div>";
