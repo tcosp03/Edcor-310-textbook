@@ -193,18 +193,16 @@
     function reviewMarkup() {
       const r = reviewState();
       const setGoal = goals[cs.tier] || 5;
-      let h = '<div class="pp-review-tools"><div class="pp-set-progress"><span style="width:' + Math.min(100, (r.current.length / setGoal) * 100) + '%"></span></div><span class="pp-tiny pp-muted">' + r.current.length + ' / ' + setGoal + ' submitted in this set</span>';
       const ready = r.last && r.last.length === setGoal;
+      let h = '<div class="pp-review-tools"><div class="pp-set-progress"><span style="width:' + Math.min(100, (r.current.length / setGoal) * 100) + '%"></span></div><span class="pp-tiny pp-muted">' + r.current.length + ' / ' + setGoal + ' submitted in this set</span></div>';
       h += '<button type="button" class="pp-review-button" id="pp-review-toggle"' + (ready ? '' : ' disabled') + '>' + (ready ? (reviewOpen ? 'Hide review' : 'Review last ' + setGoal + ' questions') : 'Review last ' + setGoal + ' questions') + '</button>';
-      h += '</div>';
-      if (reviewOpen && r.last && r.last.length === setGoal) {
+      if (reviewOpen && ready) {
         h += '<section class="pp-review-list" aria-label="Review of the last ' + setGoal + ' questions">';
-        h += r.last.map((q) => '<article class="pp-review-item ' + (q.correct ? 'pp-review-correct' : 'pp-review-incorrect') + '"><div class="pp-review-result">' + (q.correct ? 'Correct' : 'Incorrect') + '</div><div class="pp-review-title">' + esc(q.title) + '</div><div class="pp-review-prompt">' + esc(q.prompt) + '</div><div><b>Your answer:</b> ' + esc(q.response) + '</div>' + (q.correct ? '' : '<div><b>Correct answer:</b> ' + esc(q.answer) + '</div>') + '<div class="pp-review-why"><b>Why:</b> ' + esc(q.why) + '</div></article>').join('');
+        h += r.last.map((q) => '<details class="pp-review-item ' + (q.correct ? 'pp-review-correct' : 'pp-review-incorrect') + '"><summary><span class="pp-review-mark">' + (q.correct ? '✓' : '×') + '</span><span class="pp-review-summary-text"><span class="pp-review-title">' + esc(q.title) + '</span><span class="pp-review-summary-link">See the question and why</span></span></summary><div class="pp-review-body"><div class="pp-review-prompt">' + esc(q.prompt) + '</div><div><b>Your answer:</b> ' + esc(q.response) + '</div>' + (q.correct ? '' : '<div><b>Correct answer:</b> ' + esc(q.answer) + '</div>') + '<div class="pp-review-why"><b>Why:</b> ' + esc(q.why) + '</div></div></details>').join('');
         h += '</section>';
       }
       return h;
     }
-
     function activitiesFor(t) { return concept.activities.filter((a) => a.tier === t && PP.renderers[a.type]); }
 
     function current() {
