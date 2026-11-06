@@ -183,13 +183,22 @@
       return { correct: !!fields.correct, title: activity.title || activity.type, prompt: unit.prompt || unit.text || unit.term || unit.left || "Question", response: ra.response || "No answer recorded", answer: ra.correct || "See the activity explanation", why: unit.why || "Review the explanation in the activity." };
     }
 
+    function reviewState() {
+      S.reviews = S.reviews || {};
+      const key = String(cs.tier);
+      S.reviews[key] = S.reviews[key] || { current: [], last: [] };
+      return S.reviews[key];
+    }
+
     function reviewMarkup() {
-      const r = S.review || { current: [], last: [] };
-      let h = '<div class="pp-review-tools"><div class="pp-set-progress"><span style="width:' + Math.min(100, (r.current.length / 10) * 100) + '%"></span></div><span class="pp-tiny pp-muted">' + r.current.length + ' / 10 submitted in this set</span>';
-      if (r.last && r.last.length === 10) h += '<button type="button" class="pp-review-button" id="pp-review-toggle">' + (reviewOpen ? 'Hide review' : 'Review last 10 questions') + '</button>';
+      const r = reviewState();
+      const setGoal = goals[cs.tier] || 5;
+      let h = '<div class="pp-review-tools"><div class="pp-set-progress"><span style="width:' + Math.min(100, (r.current.length / setGoal) * 100) + '%"></span></div><span class="pp-tiny pp-muted">' + r.current.length + ' / ' + setGoal + ' submitted in this set</span>';
+      const ready = r.last && r.last.length === setGoal;
+      h += '<button type="button" class="pp-review-button" id="pp-review-toggle"' + (ready ? '' : ' disabled') + '>' + (ready ? (reviewOpen ? 'Hide review' : 'Review last ' + setGoal + ' questions') : 'Review last ' + setGoal + ' questions') + '</button>';
       h += '</div>';
-      if (reviewOpen && r.last && r.last.length === 10) {
-        h += '<section class="pp-review-list" aria-label="Review of the last 10 questions">';
+      if (reviewOpen && r.last && r.last.length === setGoal) {
+        h += '<section class="pp-review-list" aria-label="Review of the last ' + setGoal + ' questions">';
         h += r.last.map((q) => '<article class="pp-review-item ' + (q.correct ? 'pp-review-correct' : 'pp-review-incorrect') + '"><div class="pp-review-result">' + (q.correct ? 'Correct' : 'Incorrect') + '</div><div class="pp-review-title">' + esc(q.title) + '</div><div class="pp-review-prompt">' + esc(q.prompt) + '</div><div><b>Your answer:</b> ' + esc(q.response) + '</div>' + (q.correct ? '' : '<div><b>Correct answer:</b> ' + esc(q.answer) + '</div>') + '<div class="pp-review-why"><b>Why:</b> ' + esc(q.why) + '</div></article>').join('');
         h += '</section>';
       }
@@ -254,12 +263,13 @@
            fields: {correct, resp, misc?, key?, extra?} */
         record: (unit, fields) => {
           S.attempts = S.attempts || {};
-          S.review = S.review || { current: [], last: [] };
+          const review = reviewState();
           const n = S.attempts[unit.id] = (S.attempts[unit.id] || 0) + 1;
           store.save();
           const key = fields.key || unit.id;
-          S.review.current.push(reviewQuestion(activity, unit, fields));
-          while (S.review.current.length >= 10) { S.review.last = S.review.current.slice(0, 10); S.review.current = S.review.current.slice(10); }
+          review.current.push(reviewQuestion(activity, unit, fields));
+          const setGoal = goals[cs.tier] || 5;
+          while (review.current.length >= setGoal) { review.last = review.current.slice(0, setGoal); review.current = review.current.slice(setGoal); }
           store.save();
           updateReview();
           return PP.recordEvent({
