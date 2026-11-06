@@ -216,7 +216,7 @@
       if (cleanup) { try { cleanup(); } catch (e) {} cleanup = null; }
       const { mix, activity, list } = current();
       const goal = goals[cs.tier] || 5;
-      const done = cs.counts[cs.tier] || 0;
+      const done = reviewState().current.length;
       const pick = mix ? "mix" : activity.id;
       let h = '<div class="pp-panel">';
       h += '<div class="pp-eyebrow">Concept ' + esc(concept.number) + ' practice</div>';
@@ -231,7 +231,7 @@
       }
       h += '<p class="pp-instruction"><b>' + esc(activity.title) + (/[.?!:]$/.test(activity.title) ? "" : ".") + "</b> " + esc(activity.instructions || DEFAULT_INSTRUCTIONS[activity.type] || "") + "</p>";
       h += '<div class="pp-progress"><div class="pp-bar"><span style="width:' + Math.min(100, (done / goal) * 100) + '%"></span></div><div class="pp-tiny pp-muted">' +
-        Math.min(done, goal) + " / " + goal + " suggested. " + (done >= goal ? "Move on when you feel ready." : "A guide, not a grade.") + "</div></div>";
+        Math.min(done, goal) + " / " + goal + " submitted in this set. " + (done >= goal ? "Move on when you feel ready." : "A guide, not a grade.") + "</div></div>";
       h += '<div id="pp-activity" aria-live="polite"></div><div id="pp-review-slot">' + reviewMarkup() + '</div></div>';
       rootEl.innerHTML = h;
 
@@ -293,7 +293,7 @@
     }
 
     function updateProgress() {
-      const goal = goals[cs.tier] || 5, done = cs.counts[cs.tier] || 0;
+      const goal = goals[cs.tier] || 5, done = reviewState().current.length;
       const bar = rootEl.querySelector(".pp-progress .pp-bar span");
       const txt = rootEl.querySelector(".pp-progress .pp-tiny");
       if (bar) bar.style.width = Math.min(100, (done / goal) * 100) + "%";
