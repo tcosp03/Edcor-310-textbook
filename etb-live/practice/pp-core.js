@@ -162,6 +162,39 @@
     if (!tiers.includes(cs.tier)) cs.tier = tiers[0];
     let cleanup = null;
     const marks = {};
+    let reviewOpen = false;
+
+    function reviewAnswer(activity, unit, fields) {
+      const r = fields.resp || {};
+      let response = r.raw || r.value || r.grade || "";
+      let correct = "";
+      if (activity.type === "choice") { response = unit.options && unit.options[r.opt]; correct = unit.options && unit.options[unit.answer]; }
+      else if (activity.type === "compare") { response = r.choice === 0 ? unit.left : unit.right; correct = unit.answer === 0 ? unit.left : unit.right; }
+      else if (activity.type === "quick") { response = activity.labels && activity.labels[r.label]; correct = activity.labels && activity.labels[unit.answer]; }
+      else if (activity.type === "sort") { response = activity.bins && activity.bins[r.bin]; correct = activity.bins && activity.bins[unit.bin]; }
+      else if (activity.type === "match") { const p = activity.pairs && activity.pairs.find((x) => x.id === r.with); response = p ? p.right : r.with; correct = unit.right; }
+      else if (activity.type === "detective") { response = unit.answers && unit.answers[r.answer] ? unit.answers[r.answer].text : r.grade; correct = "A"; }
+      else if (activity.type === "tiles") { response = Array.isArray(r.chosen) ? r.chosen.join(" ") : r.chosen; correct = unit.correct || unit.answer || "See the worked answer."; }
+      return { response: response == null ? "" : String(response), correct: correct == null ? "" : String(correct) };
+    }
+
+    function reviewQuestion(activity, unit, fields) {
+      const ra = reviewAnswer(activity, unit, fields);
+      return { correct: !!fields.correct, title: activity.title || activity.type, prompt: unit.prompt || unit.text || unit.term || unit.left || "Question", response: ra.response || "No answer recorded", answer: ra.correct || "See the activity explanation", why: unit.why || "Review the explanation in the activity." };
+    }
+
+    function reviewMarkup() {
+      const r = S.review || { current: [], last: [] };
+      let h = '<div class="pp-review-tools"><div class="pp-set-progress"><span style="width:' + Math.min(100, (r.current.length / 10) * 100) + '%"></span></div><span class="pp-tiny pp-muted">' + r.current.length + ' / 10 submitted in this set</span>';
+      if (r.last && r.last.length === 10) h += '<button type="button" class="pp-review-button" id="pp-review-toggle">' + (reviewOpen ? 'Hide review' : 'Review last 10 questions') + '</button>';
+      h += '</div>';
+      if (reviewOpen && r.last && r.last.length === 10) {
+        h += '<section class="pp-review-list" aria-label="Review of the last 10 questions">';
+        h += r.last.map((q) => '<article class="pp-review-item ' + (q.correct ? 'pp-review-correct' : 'pp-review-incorrect') + '"><div class="pp-review-result">' + (q.correct ? 'Correct' : 'Incorrect') + '</div><div class="pp-review-title">' + esc(q.title) + '</div><div class="pp-review-prompt">' + esc(q.prompt) + '</div><div><b>Your answer:</b> ' + esc(q.response) + '</div>' + (q.correct ? '' : '<div><b>Correct answer:</b> ' + esc(q.answer) + '</div>') + '<div class="pp-review-why"><b>Why:</b> ' + esc(q.why) + '</div></article>').join('');
+        h += '</section>';
+      }
+      return h;
+    }
 
     function activitiesFor(t) { return concept.activities.filter((a) => a.tier === t && PP.renderers[a.type]); }
 
@@ -192,12 +225,15 @@
       h += '<p class="pp-instruction"><b>' + esc(activity.title) + (/[.?!:]$/.test(activity.title) ? "" : ".") + "</b> " + esc(activity.instructions || DEFAULT_INSTRUCTIONS[activity.type] || "") + "</p>";
       h += '<div class="pp-progress"><div class="pp-bar"><span style="width:' + Math.min(100, (done / goal) * 100) + '%"></span></div><div class="pp-tiny pp-muted">' +
         Math.min(done, goal) + " / " + goal + " suggested. " + (done >= goal ? "Move on when you feel ready." : "A guide, not a grade.") + "</div></div>";
-      h += '<div id="pp-activity" aria-live="polite"></div></div>';
+      h += '<div id="pp-review-slot">' + reviewMarkup() + '</div><div id="pp-activity" aria-live="polite"></div></div>';
       rootEl.innerHTML = h;
 
       rootEl.querySelectorAll("[data-tier]").forEach((b) => (b.onclick = () => { cs.tier = Number(b.dataset.tier); store.save(); render(); }));
       const sel = rootEl.querySelector("#pp-style");
       if (sel) sel.onchange = () => { cs.style[cs.tier] = sel.value; store.save(); render(); };
+
+      const reviewButton = rootEl.querySelector("#pp-review-toggle");
+      if (reviewButton) reviewButton.onclick = () => { reviewOpen = !reviewOpen; updateReview(); };
 
       const host = rootEl.querySelector("#pp-activity");
       const ast = cs.act[activity.id] = cs.act[activity.id] || {};
@@ -218,9 +254,14 @@
            fields: {correct, resp, misc?, key?, extra?} */
         record: (unit, fields) => {
           S.attempts = S.attempts || {};
+          S.review = S.review || { current: [], last: [] };
           const n = S.attempts[unit.id] = (S.attempts[unit.id] || 0) + 1;
           store.save();
           const key = fields.key || unit.id;
+          S.review.current.push(reviewQuestion(activity, unit, fields));
+          while (S.review.current.length >= 10) { S.review.last = S.review.current.slice(0, 10); S.review.current = S.review.current.slice(10); }
+          store.save();
+          updateReview();
           return PP.recordEvent({
             concept: concept.number, act: activity.id, type: activity.type, tier: activity.tier, mode: mix ? "mix" : "chosen",
             unit: unit.id, unit_v: unit._v || null, attempt: n,
@@ -231,6 +272,15 @@
         }
       };
       cleanup = PP.renderers[activity.type].render(host, activity, ctx) || null;
+      PP.resized && PP.resized();
+    }
+
+    function updateReview() {
+      const slot = rootEl.querySelector("#pp-review-slot");
+      if (!slot) return;
+      slot.innerHTML = reviewMarkup();
+      const button = slot.querySelector("#pp-review-toggle");
+      if (button) button.onclick = () => { reviewOpen = !reviewOpen; updateReview(); };
       PP.resized && PP.resized();
     }
 

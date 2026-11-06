@@ -209,3 +209,6 @@ legend { font-weight: 650; padding: 0 4px; }
 .pp-fig-compact { max-width: 480px; }
 .pp-fig-cap { text-align: center; font-weight: 700; font-size: .95rem; color: #21313e; margin: 2px 0 -4px; }
 
+
+.etb .pp-review-tools{display:flex;align-items:center;gap:8px;flex-wrap:wrap;margin:10px 0 14px}
+.etb .pp-set-progress{width:150px;height:9px;background:#dce6eb;border-radius:999px;overflow:hidden}.etb .pp-set-progress span{display:block;height:100%;background:#17647d;border-radius:999px;transition:width .2s ease}.etb .pp-review-button{border:1px solid #b8ced8;background:#fff;color:#1b5f79;border-radius:8px;padding:7px 10px;font:inherit;cursor:pointer}.etb .pp-review-list{display:grid;gap:8px;margin:0 0 15px}.etb .pp-review-item{border-left:4px solid #2b8a57;background:#f1f7f3;border-radius:6px;padding:9px 11px;font-size:13px;line-height:1.45}.etb .pp-review-item.pp-review-incorrect{border-left-color:#b83a34;background:#fff3f2}.etb .pp-review-result{text-transform:uppercase;font-size:10px;font-weight:800;letter-spacing:.12em;color:#187343;margin-bottom:2px}.etb .pp-review-incorrect .pp-review-result{color:#a72d29}.etb .pp-review-title{font-weight:700;color:#1a3a5c;margin-bottom:3px}.etb .pp-review-prompt{margin-bottom:5px}.etb .pp-review-why{margin-top:5px;color:#526d79}
