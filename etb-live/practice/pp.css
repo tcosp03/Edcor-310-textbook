@@ -227,3 +227,20 @@ legend { font-weight: 650; padding: 0 4px; }
 .etb .pp-review-body{border-top:1px solid rgba(30,70,90,.16);padding:10px 11px 11px;font-size:13px;line-height:1.45}
 .etb .pp-review-body .pp-review-prompt{font-size:14px;font-weight:650;margin-bottom:7px}
 .etb details.pp-review-item[open]>summary{background:rgba(255,255,255,.35)}
+
+/* Chapter 17 review cards inside the practice iframe */
+.pp-review-list{display:grid;gap:8px;margin:0 0 15px}
+details.pp-review-item{display:block;border:1px solid #cbd9df;border-left:4px solid #278a50;border-radius:7px;background:#f3f7f8;overflow:hidden;padding:0}
+details.pp-review-item.pp-review-incorrect{border-left-color:#bd3b32;background:#f7f8f9}
+details.pp-review-item>summary{display:flex;align-items:flex-start;gap:9px;padding:9px 11px;cursor:pointer;list-style:none}
+details.pp-review-item>summary::-webkit-details-marker{display:none}
+details.pp-review-item>summary::marker{content:"";display:none}
+.pp-review-mark{font-size:18px;line-height:1.15;width:16px;flex:0 0 16px;color:#21844a}
+.pp-review-incorrect .pp-review-mark{color:#bd3b32}
+.pp-review-summary-text{display:block;min-width:0}
+.pp-review-title{display:block;font-size:14px;line-height:1.25;font-weight:600;color:#173b5b;margin:0 0 3px}
+.pp-review-summary-link{display:block;font-size:12px;line-height:1.25;color:#236d87}
+.pp-review-body{border-top:1px solid #d5e0e5;padding:10px 11px 11px;font-size:13px;line-height:1.45;color:#173b5b}
+.pp-review-body .pp-review-prompt{font-size:14px;font-weight:650;margin:0 0 7px}
+.pp-review-body>div{margin:3px 0}
+.pp-review-why{margin-top:7px;color:#526d79}
