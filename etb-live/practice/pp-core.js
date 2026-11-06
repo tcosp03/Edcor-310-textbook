@@ -301,6 +301,13 @@
     }
 
     render();
+    rootEl.addEventListener("click", (event) => {
+      const button = event.target.closest && event.target.closest("button");
+      if (!button || button.textContent.trim() !== "Next question") return;
+      setTimeout(() => {
+        try { rootEl.scrollIntoView({ block: "start", behavior: "auto" }); } catch (e) {}
+      }, 0);
+    });
   }
 
   /* ---------- boot ---------- */
