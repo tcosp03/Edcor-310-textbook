@@ -41,13 +41,13 @@
         }
         h += '<div class="pp-actions">';
         if (!st.checked) {
-          h += '<button type="button" class="pp-primary" id="pp-go"' + (st.chosen.length ? "" : " disabled") + ">Check Question</button>";
+          h += '<button type="button" class="pp-primary" id="pp-go" style="display:none">Next question</button>';
           if (it.hint) h += '<button type="button" id="pp-hint">' + (st.hint ? "Hide hint" : "Show hint") + "</button>";
           if (st.chosen.length) h += '<button type="button" id="pp-clear">Clear</button>';
-        } else h += '<button type="button" class="pp-primary" id="pp-go">Check Question</button>';
+        } else h += '<button type="button" class="pp-primary" id="pp-go">Next question</button>';
         h += "</div>";
         host.innerHTML = h;
-        host.querySelectorAll("[data-in]").forEach((b) => (b.onclick = () => { st.chosen.push(Number(b.dataset.in)); ctx.save(); draw(); }));
+        host.querySelectorAll("[data-in]").forEach((b) => (b.onclick = () => { st.chosen.push(Number(b.dataset.in)); ctx.save(); const it = activity.items[st.cur]; if (st.chosen.length === it.correct.length) host.querySelector("#pp-go").click(); else draw(); }));
         host.querySelectorAll("[data-out]").forEach((b) => (b.onclick = () => { st.chosen = st.chosen.filter((x) => x !== Number(b.dataset.out)); ctx.save(); draw(); }));
         const hint = host.querySelector("#pp-hint");
         if (hint) hint.onclick = () => { st.hint = !st.hint; ctx.save(); draw(); };

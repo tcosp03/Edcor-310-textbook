@@ -57,7 +57,7 @@
             '<select id="pp-cl' + k + '" data-cl="' + k + '"' + (r && r.ok ? " disabled" : "") + '><option value="">Classify…</option>' +
             p.classify.options.map((o) => '<option value="' + esc(o) + '"' + (st.classes[k] === o ? " selected" : "") + ">" + esc(o) + "</option>").join("") + "</select>";
         }
-        if (st.stage === 0) h += '<button type="button" class="pp-primary" data-one="' + k + '">Check</button>';
+        
         h += "</div>";
         if (r) {
           h += '<div class="pp-result ' + (r.ok ? "pp-ok" : "pp-no") + '" role="status">' + esc(r.msg) + "</div>";
@@ -104,19 +104,17 @@
         const checked = st.rows.every((k) => st.results[k]);
         const allOk = st.rows.every((k) => st.results[k] && st.results[k].ok);
         h += '<div class="pp-actions">';
-        if (st.stage > 0 && !allOk) h += '<button type="button" class="pp-primary" id="pp-all">' + "Check Question" + "</button>";
+        
         if (checked) {
           const last = st.stage === prog.length - 1;
-          h += '<button type="button" class="' + (allOk ? "pp-primary" : "") + '" id="pp-next">' + "Check Question" + "</button>";
+          h += '<button type="button" class="' + (allOk ? "pp-primary" : "") + '" id="pp-next">' + "Next question" + "</button>";
         }
         h += "</div>";
         host.innerHTML = h;
         host.querySelectorAll("[data-sup]").forEach((c) => (c.onchange = () => { st.show[c.dataset.sup] = c.checked; ctx.save(); draw(); }));
-        host.querySelectorAll("[data-in]").forEach((i) => (i.oninput = () => { st.entries[i.dataset.in] = i.value; ctx.save(); }));
+        host.querySelectorAll("[data-in]").forEach((i) => (i.onchange = () => { st.entries[i.dataset.in] = i.value; const pending = st.rows.filter((k) => !(st.results[k] && st.results[k].ok)); if (pending.length && pending.every((k) => String(st.entries[k] || "").trim())) check(pending); else { ctx.save(); draw(); } }));
         host.querySelectorAll("[data-cl]").forEach((s) => (s.onchange = () => { st.classes[s.dataset.cl] = s.value; ctx.save(); }));
         host.querySelectorAll("[data-one]").forEach((b) => (b.onclick = () => check([Number(b.dataset.one)])));
-        const all = host.querySelector("#pp-all");
-        if (all) all.onclick = () => check(st.rows.filter((k) => !(st.results[k] && st.results[k].ok)));
         const next = host.querySelector("#pp-next");
         if (next) next.onclick = () => {
           const last = st.stage === prog.length - 1;

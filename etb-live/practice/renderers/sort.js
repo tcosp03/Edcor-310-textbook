@@ -73,8 +73,8 @@
           const right = st.round.filter((i) => st.picks[i] === activity.cards[i].bin).length;
           h += '<div class="pp-feedback' + (allRight ? "" : " pp-bad") + '" role="status"><b>' + right + " of " + st.round.length + " in the best category.</b></div>";
         }
-        h += '<div class="pp-actions"><button type="button" class="pp-primary" id="pp-go"' + (!st.checked && placed() < st.round.length ? " disabled" : "") + ">" +
-          "Check Question" + "</button></div>";
+        h += '<div class="pp-actions"><button type="button" class="pp-primary" id="pp-go"' + (!st.checked ? ' style="display:none"' : '') + ">" +
+          "Next question" + "</button></div>";
         host.innerHTML = h;
         wire();
         ctx.resized();
@@ -90,7 +90,7 @@
         if (st.checked || i == null) return;
         st.how = st.how || {};
         if (zone === "tray") delete st.picks[i]; else { st.picks[i] = Number(zone); st.how[i] = how || "tap"; }
-        selected = null; ctx.save(); draw();
+        selected = null; ctx.save(); if (placed() === st.round.length) host.querySelector("#pp-go").click(); else draw();
       }
 
       function wire() {
@@ -99,7 +99,7 @@
           const i = Number(s.dataset.menu);
           st.how = st.how || {};
           if (s.value === "") delete st.picks[i]; else { st.picks[i] = Number(s.value); st.how[i] = "menu"; }
-          ctx.save(); draw();
+          ctx.save(); if (placed() === st.round.length) host.querySelector("#pp-go").click(); else draw();
         }));
         host.querySelectorAll("[data-place]").forEach((b) => (b.onclick = () => place(selected, b.dataset.place)));
         host.querySelectorAll("[data-zone]").forEach((z) => (z.onclick = (e) => {

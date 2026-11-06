@@ -56,10 +56,10 @@
           h += '<div class="pp-feedback' + (ok ? "" : " pp-bad") + '" role="status"><b>' + (ok ? "Correct." : "Not quite.") + "</b>" +
             (specific ? "<p>" + esc(specific) + "</p>" : "") + "<p>" + esc(it.why) + "</p></div>";
         }
-        h += '<div class="pp-actions"><button type="button" class="pp-primary" id="pp-go"' + (!st.checked && st.picked == null ? " disabled" : "") + ">" +
-          "Check Question" + "</button></div>";
+        h += '<div class="pp-actions"><button type="button" class="pp-primary" id="pp-go"' + (!st.checked ? ' style="display:none"' : '') + ">" +
+          "Next question" + "</button></div>";
         host.innerHTML = h;
-        host.querySelectorAll("[data-opt]").forEach((b) => (b.onclick = () => { st.picked = Number(b.dataset.opt); ctx.save(); draw(); }));
+        host.querySelectorAll("[data-opt]").forEach((b) => (b.onclick = () => { st.picked = Number(b.dataset.opt); ctx.save(); host.querySelector("#pp-go").click(); }));
         host.querySelector("#pp-go").onclick = () => {
           if (!st.checked) {
             st.checked = true;

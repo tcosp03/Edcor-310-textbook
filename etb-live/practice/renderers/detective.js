@@ -43,10 +43,10 @@
           }).join("") + "</div>";
         }
         const n = Object.keys(st.picks).length;
-        h += '<div class="pp-actions"><button type="button" class="pp-primary" id="pp-go"' + (!st.checked && n < r.answers.length ? " disabled" : "") + ">" +
-          "Check Question" + "</button></div>";
+        h += '<div class="pp-actions"><button type="button" class="pp-primary" id="pp-go"' + (!st.checked ? ' style="display:none"' : '') + ">" +
+          "Next question" + "</button></div>";
         host.innerHTML = h;
-        host.querySelectorAll("[data-g]").forEach((b) => (b.onclick = () => { st.picks[b.dataset.a] = b.dataset.g; ctx.save(); draw(); }));
+        host.querySelectorAll("[data-g]").forEach((b) => (b.onclick = () => { st.picks[b.dataset.a] = b.dataset.g; ctx.save(); if (Object.keys(st.picks).length === r.answers.length) host.querySelector("#pp-go").click(); else draw(); }));
         host.querySelector("#pp-go").onclick = () => {
           if (!st.checked) {
             st.checked = true;
