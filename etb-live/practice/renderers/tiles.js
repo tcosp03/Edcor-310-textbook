@@ -41,10 +41,10 @@
         }
         h += '<div class="pp-actions">';
         if (!st.checked) {
-          h += '<button type="button" class="pp-primary" id="pp-go"' + (st.chosen.length ? "" : " disabled") + ">Check</button>";
+          h += '<button type="button" class="pp-primary" id="pp-go"' + (st.chosen.length ? "" : " disabled") + ">Check Question</button>";
           if (it.hint) h += '<button type="button" id="pp-hint">' + (st.hint ? "Hide hint" : "Show hint") + "</button>";
           if (st.chosen.length) h += '<button type="button" id="pp-clear">Clear</button>';
-        } else h += '<button type="button" class="pp-primary" id="pp-go">Next</button>';
+        } else h += '<button type="button" class="pp-primary" id="pp-go">Check Question</button>';
         h += "</div>";
         host.innerHTML = h;
         host.querySelectorAll("[data-in]").forEach((b) => (b.onclick = () => { st.chosen.push(Number(b.dataset.in)); ctx.save(); draw(); }));
